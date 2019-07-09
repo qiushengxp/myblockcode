@@ -1,0 +1,69 @@
+Profiles:
+  #创世区块配置 这里的名称可自定义，使用生成指令时需要使用该名称
+  MyOrgsOrdererGenesis:
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *org1
+          - *org2
+  #通道配置 这里的名称可自定义，使用生成指令时需要使用该名称
+  MyOrgsChannel:
+    Consortium: SampleConsortium
+    Application:
+      <<: *ApplicationDefaults
+      # 组织设置
+      Organizations:
+        - *org1
+        - *org2
+
+# 通道中组织配置
+Organizations:
+  # 排序服务
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: crypto-config/ordererOrganizations/example.com/msp
+
+  # 应用组织
+  - &org1
+    Name: Org1MSP
+    ID: Org1MSP
+    MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+    AnchorPeers:
+      - Host: peer0.org1.example.com
+        Port: 7051
+
+  # 应用组织
+  - &org2
+    Name: Org2MSP
+    ID: Org2MSP
+    MSPDir: crypto-config/peerOrganizations/org2.example.com/msp
+    AnchorPeers:
+      - Host: peer0.org2.example.com
+        Port: 8051
+
+# 这种&方式应该类似命名，在其他地方通过『*名称』来调用，『<<: *OrdererDefaults』的调用方式应该是把整块放入指定位置
+# 待确认
+# 排序服务配置
+Orderer: &OrdererDefaults
+  # 排序方式
+  OrdererType: solo
+  Addresses:
+    - orderer.example.com:7050
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 98 MB
+    PreferredMaxBytes: 512 KB
+  Kafka:
+    Brokers:
+      - 127.0.0.1:9092
+  Organizations:
+
+
+Application: &ApplicationDefaults
+  Organizations:
